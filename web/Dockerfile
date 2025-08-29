@@ -20,4 +20,3 @@ COPY --from=build /app/public ./public
 COPY package.json ./package.json
 EXPOSE 3000
 CMD ["npm", "start"]
-
