@@ -1,0 +1,16 @@
+node_modules/
+.next/
+dist/
+.turbo/
+.vercel/
+.DS_Store
+.env
+.env.*
+*.log
+.pnpm-store/
+coverage/
+**/.cache/
+**/.vite/
+**/.parcel-cache/
+**/.eslintcache
+
