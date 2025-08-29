@@ -12,15 +12,16 @@ Monorepo for the Due Diligence Audit web application. Mobile-first, offline-capa
 ## Quick start (Docker)
 1. Copy envs and adjust as needed:
    - Create a `.env` in the repo root (see variables in `docker-compose.yml`).
+   - For multi-app VPS, to avoid port clashes, set `HOST_BIND_ADDRESS=127.0.0.1` so services only bind locally. Front with a reverse proxy.
 2. Build and run:
 ```bash
 docker compose up -d --build
 ```
-3. Services:
-   - Web: http://localhost:3000
-   - API: http://localhost:4000/health
-   - Postgres: localhost:5432
-   - MinIO: http://localhost:9000 (console: http://localhost:9001)
+3. Services (local binds by default):
+   - Web: http://127.0.0.1:3000
+   - API: http://127.0.0.1:4000/health
+   - Postgres: not exposed (use the network)
+   - MinIO: http://127.0.0.1:9000 (console: http://127.0.0.1:9001)
 
 ## Local development
 You can run services individually as they evolve. Install Node 20+ and PNPM/NPM.
@@ -40,9 +41,10 @@ npm run dev
 ```
 
 ## Deployment notes (Debian VPS, Docker)
-- Use Docker Compose on the VPS. Consider reverse proxy (Caddy/Traefik/Nginx) for TLS and domains.
+- Use Docker Compose on the VPS. Put Caddy/Traefik/Nginx in front for TLS and domains.
 - Store secrets via environment variables or a secret manager. Never commit credentials.
 - Mount volumes for Postgres and MinIO for durability.
+- On busy VPSs, keep `HOST_BIND_ADDRESS=127.0.0.1` and publish via reverse proxy to avoid port conflicts.
 
 ## Next steps
 - Flesh out API endpoints, DB schema (Prisma), and storage presign flows.

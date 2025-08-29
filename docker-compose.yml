@@ -11,13 +11,16 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-dhp_dd}
     volumes:
       - db_data:/var/lib/postgresql/data
-    ports:
-      - "${DB_PORT:-5432}:5432"
+    # Not exposed to host by default to avoid port conflicts
+    expose:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - dhp_dd_net
 
   minio:
     image: minio/minio:RELEASE.2024-11-07T00-52-20Z
@@ -29,13 +32,15 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:${MINIO_PORT:-9000}:9000"
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - dhp_dd_net
 
   api:
     build: ./api
@@ -50,8 +55,10 @@ services:
     environment:
       - NODE_ENV=production
     ports:
-      - "${API_PORT:-4000}:4000"
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:${API_PORT:-4000}:4000"
     restart: unless-stopped
+    networks:
+      - dhp_dd_net
 
   web:
     build:
@@ -68,8 +75,14 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
     restart: unless-stopped
+    networks:
+      - dhp_dd_net
+
+networks:
+  dhp_dd_net:
+    name: dhp_dd_net
 
 volumes:
   db_data:
