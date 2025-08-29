@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:20-bookworm-slim AS base
 WORKDIR /app
 
 FROM base AS deps
@@ -8,7 +8,7 @@ RUN npm ci --no-audit --no-fund
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build || yarn build || pnpm build
+RUN npm run build
 
 FROM base AS runtime
 ENV NODE_ENV=production
